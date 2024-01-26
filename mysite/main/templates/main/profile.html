@@ -1,0 +1,480 @@
+{% extends 'outlay.html' %}
+{% load static %}
+{% load my_tags %}
+
+<head>
+    <title>Profile</title>
+</head>
+
+{% block page_title %}
+{{ user}}
+{% endblock %}
+
+    <!--
+    This website uses an MIT-licensed template.
+    License information is available in the "license/license.text" file.
+    -->
+
+{% block body %}
+<section class="section about-section gray-bg" id="about">
+    <div id="scroll-target" class="container">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="about-text go-to">
+                            <div class="row about-list">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                        <div class="about-avatar">
+                        {% if request.user.is_superuser %}
+                        <a href="{% url 'main:profile_picture' user.id %}" target="_blank">
+                            <img style="width:240px;height:240px;margin-top:8px; border:3px solid black;" src="{% url 'main:profile_picture' user.id %}">
+                        </a>
+                        </div>
+                        {% endif %}
+                </div>
+                <div class="counter">
+                    <div class="row">
+                        <div class="col-6 col-lg-3">
+                            <div class="count-data text-center">
+                                <h6 class="count h2" data-to="500" data-speed="500">{{ user }}</h6>
+                                <p class="m-0px font-w-600">Name</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="count-data text-center">
+                                <h6 class="count h2" data-to="150" data-speed="150">
+                                {{ user.date_of_birth }}
+                                </h6>
+                                <p class="m-0px font-w-600">Birth date</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="count-data text-center">
+                                <h6 class="count h2" data-to="850" data-speed="850">
+                                    {{ user.age }}
+                                </h6>
+                                <p class="m-0px font-w-600">Age</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="count-data text-center">
+                                <h6 class="count h2" data-to="190" data-speed="190">
+                                    {{ user.nationality }}
+                                </h6>
+                                <p class="m-0px font-w-600">Nationality</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if request.user.is_superuser %}
+                        <div class="card border border-dark">
+                            <div class="card-body">
+                                    <button id="toggleFormBtn" class="btn btn-primary mb-3" data-toggle="collapse" data-target="#signupForm">Add a new student!</button>
+                                    <div class="collapse" id="signupForm">
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            {% for field in signup_form %}
+                                                <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            {% endfor %}
+                                            <div class="text-center mt-3">
+                                                <button type="submit" class="btn btn-success btn-lg">Add</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="card border border-dark">
+                            <div class="card-body">
+                                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#participation" aria-expanded="false" aria-controls="absenceSection">
+                                    Change {{ user }}'s attendance manually!
+                                </button>
+                                <div class="collapse" id="participation">
+                                {% if request.user.is_superuser %}
+                                    <form method="post" action="{% url 'main:participation_count' user.id %}">
+                                        {% csrf_token %}
+                                        {% for field in participation_count_form %}
+                                            <div>
+                                                <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            </div>
+                                        {% endfor %}
+                                        <button type="submit" class="btn btn-success border border-dark">Manually change {{ user }}'s attendance!</button>
+                                    </form>
+                                {% endif %}
+                                <div class="card-title text-dark font-weight-bold">Total attendance:{{ total_attendance }}</div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                    <button id="toggleFormBtn" class="btn btn-primary mb-3" data-toggle="collapse" data-target="#late_absence">Late/absence form!</button>
+                                    <div class="collapse" id="late_absence">
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            {% for field in late_absence_form %}
+                                                <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            {% endfor %}
+                                            <div class="text-center mt-3">
+                                                <button type="submit" class="btn btn-success btn-lg">Submit!</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#grading" aria-expanded="false" aria-controls="absenceSection">
+                                    {{ user }}'s grading form!
+                                </button>
+                                <div class="collapse" id="grading">
+                                {% if request.user.is_superuser %}
+                                    <form method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        {% for field in grading_form %}
+                                            <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                            {{ field }}
+                                        {% endfor %}
+                                        {% if request.user.is_superuser %}
+                                        <div><button type="submit" class="btn btn-success border border-dark">Submit</button></div>
+                                        {% endif %}
+                                    </form>
+                                {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card border border-dark">
+                                <div class="card-body">
+                                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#lateSection" aria-expanded="false" aria-controls="lateSection">
+                                        {{ user }}'s late/absence records!
+                                    </button>
+                                    <div class="collapse" id="lateSection">
+                                        {% for la in late_absence %}
+                                            {% if la.late is not 0 %}
+                                                <p class="text-dark font-weight-bold">{{ la.late }}min Reason:
+                                                    {% if la.late_reason %}
+                                                        {{ la.late_reason }}
+                                                    {% else %}
+                                                        No
+                                                    {% endif %}
+                                                    - <span class="text-muted">{{ la.timestamp }}</span>
+                                                </p>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+
+                            </div>
+                                <div class="card-body">
+                                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#absenceSection" aria-expanded="false" aria-controls="absenceSection">
+                                        {{ user }}'s absence records!
+                                    </button>
+                                    <div class="collapse" id="absenceSection">
+                                        {% for la in late_absence %}
+                                            {% if la.absence is not None %}
+                                                <p class="text-dark font-weight-bold">Yes Reason:
+                                                {% if la.late_reason %}
+                                                    {{ la.absence_reason }}
+                                                {% else %}
+                                                    No
+                                                {% endif %}
+                                                - <span class="text-muted">{{ la.timestamp }}</span></p>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#gradingSection" aria-expanded="false" aria-controls="gradingSection">
+                                        {{ user }}'s graded material!
+                                    </button>
+                                    <div class="collapse" id="gradingSection">
+                                        {% for material in grading %}
+                                            <div class="card border border-dark mb-3">
+                                                <div class="card-body">
+                                                    <div class="card-title text-dark font-weight-bold">Type:{{ material.grading_material }}</div>
+                                                    <div class="card-title text-dark font-weight-bold">Grade:{{ material.grading_material_grade }}</div>
+                                                    <div class="card-title text-dark font-weight-bold">Comment:{{ material.grading_material_comment }}</div>
+                                                    <a href="{% url 'main:grading_picture' material.id %}" target="_blank">
+                                                        <img style="width:240px;height:240px;margin-top:8px; border:3px solid black;" src="{% url 'main:grading_picture' material.id %}">
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    {% if request.user.is_superuser %}
+                        <div class="col-md-6">
+                            <div class="card border border-dark">
+                                <div class="card-body">
+                                    <h2 class="card-title text-dark font-weight-bold">{{ user }}'s information form</h2>
+                                    <form method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        {% for field in user_preferences_form %}
+                                            <div>
+                                                <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            </div>
+                                        {% endfor %}
+                                        {% if form.errors %}
+                                            <div class="alert alert-danger">
+                                                <strong>Error:</strong>
+                                                <span class="text-danger">{{ form.errors.profile_picture.0 }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <button type="submit" class="btn btn-success border border-dark">Update!</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+{% if request.user.is_superuser %}
+                <div>
+                    <label for="category-dropdown" class="card-title text-dark font-weight-bold">View student by category:</label>
+                    <select id="category-dropdown" name="category">
+                        <option value="no-category" selected>No category</option>
+                        {% for category, japanese_category in zipped_data %}
+                        <option value="{{ category }}">{{ japanese_category }}</option>
+                        {% endfor %}
+                        <option value="all">All students</option>
+                    </select>
+                </div>
+
+                <div id="user-list">
+                    {% for category in categories %}
+                    <div class="category-section" data-category="{{ category }}" style="display: none;">
+                        {% for u in users %}
+                        {% if category in u.categories %}
+                        <div class="card border border-dark mb-3">
+                            <div class="card-body d-flex align-items-center">
+                                <a href="{% url 'main:profile' user_id=u.id %}" style="text-decoration: none;">
+                                    <span class="mr-3">
+                                        <img style="width:64px;height:64px;margin-top: 8px; border:3px solid black;" {% if request.user.is_superuser %}src="{% url 'main:profile_picture' u.id %}"{% else %}src="{% static 'stacktry/32fb4d73a44991984a007252e99f93c7.jpg' %}"{% endif %}>
+                                    </span>
+                                    <span style="color: black; font-weight: bold; margin-right: 50px;">{{ u.username }}</span>
+                                </a>
+                                <form>
+                                {% csrf_token %}
+                                <button type="button" class="increase-participation btn btn-primary border border-dark border-2 mt-2" style="margin-right: 10px;" data-url="{% url 'main:profile_participation_increase' u.id %}">
+                                Attendend
+                                </button>
+                                </form>
+                                <div class="card-body">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ u }}lateSection" aria-expanded="false" aria-controls="lateSection">
+                                        {{ u }}
+                                </button>
+                                <div class="collapse" id="{{ u }}lateSection">
+                                {% if request.user.is_superuser %}
+                                    <h2 class="card-title text-dark font-weight-bold">Late/absent form</h2>
+                                    <form method="post" action="{% url 'main:late_absence_form' u.id %}">
+                                        {% csrf_token %}
+                                        {% for field in late_absence_form %}
+                                            <div>
+                                                <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            </div>
+                                        {% endfor %}
+                                        <button type="submit" class="btn btn-success border border-dark">Submit</button>
+                                    </form>
+                                {% endif %}
+                                </div>
+                        　　　　    </div>
+                                <div class="ml-auto">
+                                    <button class="btn btn-danger btn-rounded border border-dark" data-bs-toggle="modal" data-bs-target="#confirmDeleteAccountModal{{ u.id }}_{{ category }}">Delete account</button>
+                                    <!-- Confirmation Modal for Account Deletion -->
+                                    <div class="modal fade" id="confirmDeleteAccountModal{{ u.id }}_{{ category }}" tabindex="-1" aria-labelledby="confirmDeleteAccountModalLabel{{ u.id }}_{{ category }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="confirmDeleteAccountModalLabel{{ u.id }}_{{ category }}">Delete confirmation</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Do you really want to delete this account?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
+                                                    <form action="{% url 'main:delete_account' pk=u.id %}" method="POST">
+                                                        {% csrf_token %}
+                                                        <input type="submit" class="btn btn-danger" value="Delete">
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="category-section" data-category="no-category" style="display: block;">
+                        <h2 class="card-title text-dark font-weight-bold">Students with no category!</h2>
+                        {% for u in users %}
+                        {% if not u.categories %}
+                        <div class="card border border-dark mb-3">
+                            <div class="card-body d-flex align-items-center">
+                                <a href="{% url 'main:profile' user_id=u.id %}" style="text-decoration: none;">
+                                    <span class="mr-3">
+                                        <img style="width:64px;height:64px;margin-top: 8px; border:3px solid black;" {% if request.user.is_superuser %}src="{% url 'main:profile_picture' u.id %}"{% else %}src="{% static 'stacktry/32fb4d73a44991984a007252e99f93c7.jpg' %}"{% endif %}>
+                                    </span>
+                                    <span style="color: black; font-weight: bold; margin-right: 50px;">{{ u.username }}</span>
+                                </a>
+                                <form>
+                                {% csrf_token %}
+                                <button type="button" class="increase-participation btn btn-primary border border-dark border-2 mt-2" style="margin-right: 10px;" data-url="{% url 'main:profile_participation_increase' u.id %}">
+                                Attended
+                                </button>
+                                </form>
+                                <div class="card-body">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ u }}lateSection" aria-expanded="false" aria-controls="lateSection">
+                                        Late/Absent
+                                </button>
+                                <div class="collapse" id="{{ u }}lateSection">
+                                {% if request.user.is_superuser %}
+                                    <h2 class="card-title text-dark font-weight-bold"></h2>
+                                    <form method="post" action="{% url 'main:late_absence_form' u.id %}">
+                                        {% csrf_token %}
+                                        {% for field in late_absence_form %}
+                                            <div>
+                                                <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            </div>
+                                        {% endfor %}
+                                        <button type="submit" class="btn btn-success border border-dark">Submit!</button>
+                                    </form>
+                                {% endif %}
+                                </div>
+                                </div>
+                                <div class="ml-auto">
+                                    <button class="btn btn-danger btn-rounded border border-dark" data-bs-toggle="modal" data-bs-target="#confirmDeleteAccountModal{{ u.id }}_no-category">Delete account!</button>
+                                    <!-- Confirmation Modal for Account Deletion -->
+                                    <div class="modal fade" id="confirmDeleteAccountModal{{ u.id }}_no-category" tabindex="-1" aria-labelledby="confirmDeleteAccountModalLabel{{ u.id }}_no-category" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="confirmDeleteAccountModalLabel{{ u.id }}_no-category">Delete confirmation!</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Do you really want to delete this account?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
+                                                    <form action="{% url 'main:delete_account' pk=u.id %}" method="POST">
+                                                        {% csrf_token %}
+                                                        <input type="submit" class="btn btn-danger" value="Delete">
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="category-section" data-category="all" style="display: none;">
+                        <h2 class="card-title text-dark font-weight-bold">All students!</h2>
+                        {% for u in users %}
+                        <div class="card border border-dark mb-3">
+                            <div class="card-body d-flex align-items-center">
+                                <a href="{% url 'main:profile' user_id=u.id %}" style="text-decoration: none;">
+                                    <span class="mr-3">
+                                        <img style="width:64px;height:64px;margin-top: 8px; border:3px solid black;" {% if request.user.is_superuser %}src="{% url 'main:profile_picture' u.id %}"{% else %}src="{% static 'stacktry/32fb4d73a44991984a007252e99f93c7.jpg' %}"{% endif %}>
+                                    </span>
+                                    <span style="color: black; font-weight: bold; margin-right: 50px;">{{ u.username }}</span>
+                                </a>
+                                <form>
+                                {% csrf_token %}
+                                <button type="button" class="increase-participation btn btn-primary border border-dark border-2 mt-2" style="margin-right: 10px;" data-url="{% url 'main:profile_participation_increase' u.id %}">
+                                Attended!
+                                </button>
+                                </form>
+                                <div class="card-body">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ u }}lateSection" aria-expanded="false" aria-controls="lateSection">
+                                        Late/abscent
+                                </button>
+                                <div class="collapse" id="{{ u }}lateSection">
+                                {% if request.user.is_superuser %}
+                                    <form method="post" action="{% url 'main:late_absence_form' u.id %}">
+                                        {% csrf_token %}
+                                        {% for field in late_absence_form %}
+                                            <div>
+                                                <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {{ field }}
+                                            </div>
+                                        {% endfor %}
+                                        <button type="submit" class="btn btn-success border border-dark">Submit</button>
+                                    </form>
+                                {% endif %}
+                                </div>
+                                </div>
+                                <div class="ml-auto">
+                                    <button class="btn btn-danger btn-rounded border border-dark" data-bs-toggle="modal" data-bs-target="#confirmDeleteAccountModal{{ u.id }}_all">Delete account!</button>
+                                    <!-- Confirmation Modal for Account Deletion -->
+                                    <div class="modal fade" id="confirmDeleteAccountModal{{ u.id }}_all" tabindex="-1" aria-labelledby="confirmDeleteAccountModalLabel{{ u.id }}_all" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="confirmDeleteAccountModalLabel{{ u.id }}_all">Delete confrimation</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Do you really want to delete this account?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="{% url 'main:delete_account' pk=u.id %}" method="POST">
+                                                        {% csrf_token %}
+                                                        <input type="submit" class="btn btn-danger" value="Delete">
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+{% endif %}
+  <p class="text-dark font-weight-bold">Current number of students: {% get_customuser_count %}</p>
+</div>
+</section>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{% static 'main/button.js' %}"></script>
+<script src="{% static 'main/dropdown.js' %}"></script>
+<script src="{% static 'main/scroll.js' %}"></script>
+
+
+
+{% endblock %}

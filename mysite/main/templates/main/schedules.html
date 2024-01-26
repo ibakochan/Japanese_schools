@@ -1,0 +1,72 @@
+{% extends 'outlay.html' %}
+{% load static %}
+{% load my_tags %}
+<html lang="en-JP">
+<head>
+    <title>Kix School</title>
+</head>
+
+    <!--
+    This website uses an MIT-licensed template.
+    License information is available in the "license/license.text" file.
+    -->
+
+{% block page_title %}
+Schedule page!
+{% endblock %}
+
+{% block body %}
+{% if request.user.is_superuser %}
+<form method="post" action="{% url 'main:add_users_to_lessons' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success border border-dark">Put all students in all lessons of each respective schedule!</button>
+</form>
+<p></p>
+<a href="{% url 'main:schedule_create' %}" class="btn btn-primary border border-dark">Create a new schedule!</a>
+{% endif %}
+<div id="scroll-target" class="container">
+    <div class="container">
+        <div class="timetable-img text-center">
+            <img src="img/content/timetable.png" alt="">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr class="bg-light-gray">
+                        <th colspan="4" class="text-uppercase">Schedules</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for schedule in schedules %}
+                        {% if forloop.counter0|divisibleby:4 %}
+                            </tr><tr>
+                        {% endif %}
+                        <td>
+                            <div class="d-inline-block" style="width: 120px;">
+                            <span style="cursor: pointer;" onclick="window.location.href='{% url 'main:schedule' schedule.id %}'">
+                            <span class="bg-{{ schedule.color }} padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">{{ schedule.title }}</span>
+                            </span>
+                            </div>
+                            <div>
+                                {% if schedule.picture %}
+                                <span style="cursor: pointer;" onclick="window.location.href='{% url 'main:schedule' schedule.id %}'">
+                                    <img style="width:100px;height:100px;margin-top: 8px; border:3px solid black;" src="{% url 'main:schedule_picture' pk=schedule.pk %}" alt="Schedule Picture">
+                                </span>
+                                {% else %}
+                                    <p></p>
+                                {% endif %}
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{% static 'main/button.js' %}"></script>
+<script src="{% static 'main/dropdown.js' %}"></script>
+<script src="{% static 'main/scroll.js' %}"></script>
+{% endblock %}

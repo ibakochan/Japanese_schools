@@ -1,0 +1,75 @@
+class ToDoDeleteView(OwnerDeleteView):
+    # Lets you delete a lesson.
+    # Deleting a lesson does not affect any participation counts associated with the lesson.
+    model = ToDoList
+
+    def get_success_url(self):
+
+        pk = self.object.name_to_do_lists.pk
+        return reverse('main:to_do_list', kwargs={'pk': pk})
+
+    template_name = 'main/to_do_list_form.html'
+
+    def get(self, request, pk):
+        name_to_do_lists = get_object_or_404(NameToDoLists, pk=pk)
+        form = ToDoListForm(initial={'name_to_do_lists': name_to_do_lists})
+        ctx = {'form': form, 'name_to_do_lists': name_to_do_lists}
+        return render(request, self.template_name, ctx)
+
+    def post(self, request, pk):
+        form = ToDoListForm(request.POST)
+        name_to_do_lists = get_object_or_404(NameToDoLists, pk=pk)
+
+
+        if form.is_valid():
+                to_do_list = form.save(commit=False)
+                to_do_list.owner = self.request.user
+                to_do_list.name_to_do_lists = name_to_do_lists
+                to_do_list.save()
+                return redirect('main:to_do_list', pk=pk)
+
+
+class ToDoListCreateView(LoginRequiredMixin, View):
+    # View for creating a lesson using the Createform.
+
+    template_name = 'main/to_do_list_form.html'
+
+    def get(self, request, pk):
+        name_to_do_lists = get_object_or_404(NameToDoLists, pk=pk)
+        form = ToDoListForm(initial={'name_to_do_lists': name_to_do_lists})
+        ctx = {'form': form, 'name_to_do_lists': name_to_do_lists}
+        return render(request, self.template_name, ctx)
+
+    def post(self, request, pk):
+        form = ToDoListForm(request.POST)
+        name_to_do_lists = get_object_or_404(NameToDoLists, pk=pk)
+
+
+        if form.is_valid():
+                to_do_list = form.save(commit=False)
+                to_do_list.owner = self.request.user
+                to_do_list.name_to_do_lists = name_to_do_lists
+                to_do_list.save()
+                return redirect('main:to_do_list', pk=pk)
+
+
+
+class ToDoListView(LoginRequiredMixin, View):
+    template_name = 'main/to_do_list.html'
+
+    def get(self, request, pk) :
+        name_to_do_lists = get_object_or_404(NameToDoLists, pk=pk)
+        ctx = {'name_to_do_lists': name_to_do_lists}
+
+        return render(request, self.template_name, ctx)
+
+    def post(self, request, pk):
+        name_to_do_lists = get_object_or_404(NameToDoLists, pk=pk)
+        password_entered = request.POST.get('password')
+
+        if name_to_do_lists.check_password(password_entered):
+            to_do_list = ToDoList.objects.filter(name_to_do_lists=name_to_do_lists)
+            ctx = {'to_do_list': to_do_list, 'name_to_do_lists': name_to_do_lists}
+            return render(request, self.template_name, ctx)
+        else:
+            return redirect('main:name_to_do_lists')

@@ -1,0 +1,106 @@
+<!-- button_page.html -->
+<!DOCTYPE html>
+<html>
+{% extends 'outlay.html' %}
+{% load static %}
+{% load my_tags %}
+<head>
+    <title>Participation Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+
+
+<link href="{% static 'main/timetable.css' %}" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+{% block page_title %}{{ lesson.title}} {{ lesson.day }} {{ lesson.time }}{% endblock %}
+{% block body %}
+<div id="scroll-target" class="container">
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <div class="row row-with-horizontal-scroll">
+                {% if not request.user.is_superuser %}
+                <div class="col-lg-5 col-md-5 col-sm-6">
+                    <div class="white-box text-center"><img style="width:270px; height:300px; margin-top:8px; border:3px solid black;" src="{% url 'main:lesson_picture' lesson.pk %}" class="img-responsive"></div>
+                </div>
+                {% endif %}
+                <div class="col-lg-7 col-md-7 col-sm-6">
+                    <h2 class="text-dark font-weight-bold">
+                        {{ lesson.title }} {{ lesson.day }} {{ lesson.time }}
+                    </h2>
+                    <ul>
+                        {% for user in clicks|dictsortreversed:"timestamp" %}
+                        <li style="border: 3px solid black; padding: 5px; margin-bottom: 5px; overflow: auto;">
+                            <div>
+                                <a href="{% url 'main:profile' user.user.id %}" style="text-decoration: none;">
+                                <img style="width:64px;height:64px;margin-top: 8px; border:3px solid black;" {% if request.user.is_superuser %}src="{% url 'main:profile_picture' user.user.id %}"{% else %}src="{% static 'main/32fb4d73a44991984a007252e99f93c7.jpg' %}"{% endif %}>
+                                </a>
+                            <span style="margin-left: 10px;">
+                                    <span style="margin-right: 20px; color: black; font-weight: bold;">
+                                    {{ user }}
+                                    </span>
+                                {{ user.timestamp|date:"Y-m-d H:i" }}
+                            </span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                            {% if request.user.is_superuser %}
+                                <form>
+                                {% csrf_token %}
+                                <button type="button" class="increase-participation btn btn-primary border border-dark border-2 mt-2" style="margin-right: 10px;" data-url="{% url 'main:participation_increase' lesson.pk user.id %}">
+                                Attended!
+                                </button>
+                                </form>
+                                <a href="{% url 'main:late_absence_form' user.user.id %}" class="btn btn-danger border border-dark border-2 mt-2">Late/Abscent</a>
+                            {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </div>
+                    </div>
+                    </ul>
+                    <p><a href="{% url 'main:schedules' %}" class="btn btn-primary border border-dark">Go back to the schedules</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<a href="{% url 'main:lesson_update' pk=lesson.pk %}" class="btn btn-success border border-dark">Change the content of the lesson!</a>
+
+<p></p>
+<div>
+    {% if request.user.is_superuser %}
+    <button class="btn btn-danger border border-dark" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Delete lesson!</button>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm deletion!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you really want to delete this lesson?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
+                <form action="{% url 'main:lesson_delete' lesson.pk %}" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-danger" value="Delete">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{% static 'main/button.js' %}"></script>
+<script src="{% static 'main/dropdown.js' %}"></script>
+<script src="{% static 'main/scroll.js' %}"></script>
+{% endblock %}
+</html>

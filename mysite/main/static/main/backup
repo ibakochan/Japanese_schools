@@ -1,0 +1,85 @@
+// Handle form submission for the delete forms
+$(document).on('submit', '.delete-form', function (e) {
+    e.preventDefault();  // Prevent the default form submission
+
+    // Get the form and form data
+    var form = $(this);
+    var formData = new FormData(form[0]);
+
+    // Get the form action URL from the data-url attribute
+    var url = form.data('url');
+
+    // Submit the form using AJAX
+    $.ajax({
+        type: form.attr('method'),
+        url: url,
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+            // Handle the success response
+            console.log(data);
+
+            // Remove the deleted to-do item from the page
+            form.closest('.custom-box').remove();
+        },
+        error: function (data) {
+            // Handle the error response
+            console.log('Error:', data.responseJSON);
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+$(document).ready(function () {
+    // Handle form submission for the to-do list form
+    $('#to-do-list-form').submit(function (e) {
+        e.preventDefault();  // Prevent the default form submission
+
+        // Get the form and form data
+        var form = $(this);
+        var formData = new FormData(form[0]);
+
+        // Get the form action URL from the data-url attribute
+        var url = form.data('url');
+
+        // Submit the form using AJAX
+        $.ajax({
+            type: form.attr('method'),
+            url: url,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                // Handle the success response
+                console.log(data);
+
+                // Clear the form fields
+                form.trigger('reset');
+
+                // Append the new to-do item to the existing list
+                var newItem = '<div class="custom-box card border border-dark mb-3">' +
+                    '<div class="card-body d-flex align-items-center">' +
+                    '<span style="color: black; font-weight: bold; margin-right: auto;">' + data.title + '</span>' +
+                    '<form class="ml-auto delete-form" data-url="{% url "main:to_do_delete" todo.pk %}" data-pk="' + data.pk + '" method="POST">{% csrf_token %}' +
+                    '<button type="submit" class="btn btn-danger" style="width: 120px;">用事を削除</button>' +
+                    '</form>' +
+                    '</div>' +
+                    '</div>';
+
+                $('#scroll-target .custom-section').append(newItem);
+            },
+            error: function (data) {
+                // Handle the error response
+                console.log('Error:', data.responseJSON);
+            }
+        });
+    });
+});

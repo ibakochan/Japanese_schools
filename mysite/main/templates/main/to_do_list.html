@@ -1,0 +1,61 @@
+{% extends 'outlay.html' %}
+{% load static %}
+{% load my_tags %}
+<html lang="en-JP">
+<head>
+    <title>Kix School</title>
+</head>
+
+    <!--
+    This website uses an MIT-licensed template.
+    License information is available in the "license/license.text" file.
+    -->
+
+{% block page_title %}
+Todo!
+{% endblock %}
+
+{% block body %}
+
+<form method="post" action="{% url 'main:to_do_list' name_to_do_lists.pk %}">
+    {% csrf_token %}
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">Submit</button>
+</form>
+
+<div id="to-do-list-form-container">
+    <form id="to-do-list-form" method="post" action="{% url 'main:to_do_list_create' name_to_do_lists.pk %}" data-url="{% url 'main:to_do_list_create' name_to_do_lists.pk %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success border border-dark">write thing to do!</button>
+    </form>
+</div>
+
+
+<div id="scroll-target" class="container">
+    <div class="custom-section">
+        {% for todo in to_do_list %}
+            <div class="custom-box card border border-dark mb-3">
+                <div class="card-body d-flex align-items-center">
+                    <span style="color: black; font-weight: bold; margin-right: auto;">{{ todo.title }}</span>
+                    <form action="{% url 'main:to_do_delete' todo.pk %}" method="POST" class="ml-auto delete-form" data-url="{% url 'main:to_do_delete' todo.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" style="width: 120px;">Erase todo</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{% static 'main/button.js' %}"></script>
+<script src="{% static 'main/dropdown.js' %}"></script>
+<script src="{% static 'main/scroll.js' %}"></script>
+<script src="{% static 'main/todo.js' %}?v=1"></script>
+<script src="{% static 'main/tododelete.js' %}"></script>
+{% endblock %}

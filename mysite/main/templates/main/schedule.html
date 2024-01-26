@@ -1,0 +1,105 @@
+{% extends 'outlay.html' %}
+{% load static %}
+{% load my_tags %}
+<html lang="en-JP">
+<head>
+    <title>Iwade schedule</title>
+</head>
+
+    <!--
+    This website uses an MIT-licensed template.
+    License information is available in the "license/license.text" file.
+    -->
+
+
+{% block page_title %}
+<p>{{ schedule.title }}</p>
+{{ schedule.category }}
+{% endblock %}
+{% block body %}
+{% if request.user.is_superuser %}
+<form method="post" action="{% url 'main:add_users_to_lessons' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success border border-dark">Put all students in all lessons of each respective schedule!</button>
+</form>
+<p></p>
+<a href="{% url 'main:new_lesson_create' schedule.pk %}" class="btn btn-primary border border-dark">Create a new lesson!</a>
+{% endif %}
+<link href="{% static 'main/timetable.css' %}" rel="stylesheet">
+<div id="scroll-target" class="container">
+    <div class="container">
+        <div class="timetable-img text-center">
+            <img src="img/content/timetable.png" alt="">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr class="bg-light-gray">
+                        {% for day in day_choices %}
+                            <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for spot in spots %}
+                        <tr>
+                            {% for day in day_choices %}
+                                <td>
+                                    {% for lesson in lessons|sort_by_day_order %}
+                                        {% if lesson.day == day and lesson.spot == spot %}
+                                            <span style="cursor: pointer;" onclick="window.location.href='{% url 'main:lesson' lesson.id %}'">
+                                                <div class="d-inline-block bg-{{ lesson.color }} padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13" style="width: 100px;">
+                                                {{ lesson.title }}
+                                                </div>
+                                                <div>{{ lesson.time }}</div>
+                                                <img style="width:100px;height:100px;margin-top: 8px; border:3px solid black;" src="{% url 'main:lesson_picture' lesson.id %}" alt="Lesson">
+                                            </span>
+                                            <br>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<a href="{% url 'main:schedule_update' pk=schedule.pk %}" class="btn btn-success border border-dark">Update schedule!</a>
+<p> </p>
+<div>
+    {% if request.user.is_superuser %}
+    <button class="btn btn-danger border border-dark" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Delete schedule!</button>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Delete confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you really want to delete this schedule?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{% url 'main:schedule_delete' schedule.pk %}" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-danger" value="Delete">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{% static 'main/button.js' %}"></script>
+<script src="{% static 'main/dropdown.js' %}"></script>
+<script src="{% static 'main/scroll.js' %}"></script>
+{% endblock %}

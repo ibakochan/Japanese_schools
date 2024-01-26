@@ -1,0 +1,29 @@
+{% extends 'outlay.html' %}
+{% load static %}
+<head>
+    <title>Schedule update form</title>
+</head>
+
+{% block body%}
+<div id="scroll-target" class="container">
+    <h1 class="text-dark font-weight-bold">Update schedule!</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <label class="text-dark font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+        {% endfor %}
+        {% if request.user.is_superuser %}
+        <div><button type="submit" class="btn btn-success border border-dark">Update schedule!</button></div>
+        {% endif %}
+    </form>
+    <p></p>
+    <p><a href="{% url 'main:schedules' %}" class="btn btn-primary border border-dark">Return to the schedules</a></p>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{% static 'main/button.js' %}"></script>
+<script src="{% static 'main/dropdown.js' %}"></script>
+<script src="{% static 'main/scroll.js' %}"></script>
+{% endblock %}

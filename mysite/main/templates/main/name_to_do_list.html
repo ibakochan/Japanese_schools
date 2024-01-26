@@ -1,0 +1,81 @@
+{% extends 'outlay.html' %}
+{% load static %}
+{% load my_tags %}
+<html lang="en-JP">
+<head>
+    <title>Kix School</title>
+</head>
+
+    <!--
+    This website uses an MIT-licensed template.
+    License information is available in the "license/license.text" file.
+    -->
+
+{% block page_title %}
+Todolists!
+{% endblock %}
+
+{% block body %}
+{% if request.user.is_superuser %}
+<a href="{% url 'main:name_to_do_lists_create' %}" class="btn btn-primary border border-dark">Create your todolist!</a>
+{% endif %}
+<div id="scroll-target" class="container">
+    <div class="container">
+        <div class="timetable-img text-center">
+            <img src="img/content/timetable.png" alt="">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr class="bg-light-gray">
+                        <th colspan="7" class="text-uppercase">TO-DO-LISTS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name in name_to_do_lists %}
+                        {% if forloop.counter0|divisibleby:4 %}
+                            </tr><tr>
+                        {% endif %}
+                        <td>
+                            <div style="cursor: pointer;" onclick="window.location.href='{% url 'main:to_do_list' name.id %}'">
+                                <p>{{ name.name }}</p>
+                                <img style="width:100px;height:100px;margin-top: 8px; border:3px solid black;" src="{% static 'main/just-do-it-custom-typography-lettering_358660-703.avif' %}" alt="To Do Picture">
+                            </div>
+                            <p> </p>
+                            <div>
+                            <button class="btn btn-danger btn-rounded border border-dark" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ name.id }}_all">Delete list!</button>
+                              <div class="modal fade" id="confirmDeleteModal{{ name.id }}_all" tabindex="-1" aria-labelledby="confirmDeleteModalLabel{{ name.id }}_all" aria-hidden="true">
+                                   <div class="modal-dialog">
+                                        <div class="modal-content">
+                                             <div class="modal-header">
+                                                  <h5 class="modal-title" id="confirmDeleteModalLabel{{ name.id }}_all">Delete confirmation!</h5>
+                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                             </div>
+                                             <div class="modal-body">
+                                                  Do you really want to delete this list?
+                                             </div>
+                                             <div class="modal-footer">
+                                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancle</button>
+                                                  <form action="{% url 'main:name_to_do_delete' name.pk %}" method="POST">
+                                                       {% csrf_token %}
+                                                       <input type="submit" class="btn btn-danger" value="Delete">
+                                                  </form>
+                                             </div>
+                                        </div>
+                                   </div>
+                              </div>
+                              </div>
+                        </td>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{% static 'main/button.js' %}"></script>
+<script src="{% static 'main/dropdown.js' %}"></script>
+<script src="{% static 'main/scroll.js' %}"></script>
+{% endblock %}

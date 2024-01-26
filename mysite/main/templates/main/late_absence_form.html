@@ -1,0 +1,23 @@
+{% extends 'outlay.html' %}
+{% load static %}
+<head>
+    <title>Late/absence form</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+{% block body%}
+<body class="text-dark">
+    <h1 class="font-weight-bold">{{ user }}'s lateness and absence form!</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if request.user.is_superuser %}
+        <button type="submit" class="btn btn-success border border-dark font-weight-bold">Submit</button>
+        {% endif %}
+    </form>
+    <p></p>
+    <p><a href="{% url 'main:schedules' %}" class="btn btn-primary border border-dark font-weight-bold">Go back to the schedules!</a></p>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="{% static 'main/button.js' %}"></script>
+{% endblock %}
