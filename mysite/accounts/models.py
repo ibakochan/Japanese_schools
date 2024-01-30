@@ -5,6 +5,7 @@ from datetime import datetime
 
 class CustomUser(AbstractUser):
 
+    # The categories are there to match the schedule categories in order to be able to place students in seperate schedules.
     CATEGORY_CHOICES = [
         ('Japanese_Basic_1', 'Japanese Basic 1'),
         ('Japanese_Basic_2', 'Japanese Basic 2'),

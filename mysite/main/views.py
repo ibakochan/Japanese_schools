@@ -46,6 +46,8 @@ class SetUserLimitView(View):
 class ProfilePageView(LoginRequiredMixin, View):
     # View for displaying details of a member.
     # Includes various things like profile pic, belt color, participation counts etc.
+    # Also has forms for recording lateness, graded materials etc.
+    # Can also view each user filtered by schedule they belong to etc.
 
     model = CustomUser
     template_name = 'main/profile.html'
@@ -54,8 +56,6 @@ class ProfilePageView(LoginRequiredMixin, View):
 
 
     def get(self, request, user_id):
-        # Gets the current belt, gym etc for the UserPreferencesForm.
-        # And gets the current participation counts for the user as initial input in the form.
         user = get_object_or_404(CustomUser, id=user_id)
         users = CustomUser.objects.all()
         grading = Grading.objects.filter(user=user)
@@ -94,7 +94,6 @@ class ProfilePageView(LoginRequiredMixin, View):
         })
 
     def get_context_data(self, **kwargs):
-        # To get the user of the current profile page.
         context = super(ProfilePageView, self).get_context_data(**kwargs)
         user_id = self.kwargs['user_id']
 
@@ -104,8 +103,6 @@ class ProfilePageView(LoginRequiredMixin, View):
         return context
 
     def post(self, request, user_id):
-        # For changing information about the user using the form.
-
         user = get_object_or_404(CustomUser, id=user_id)
 
         user_preferences_form = UserPreferencesForm(request.POST, request.FILES or None, instance=user)
@@ -144,7 +141,7 @@ class ProfilePageView(LoginRequiredMixin, View):
 
 def profile_stream_file(request, user_id):
     # This is got from the dj4e tutorial.
-    # Lets you stream the picture in a different url and so I can use that link to display it on a page.
+    # Lets you stream the picture in a different url and so I can use the link to display it on a page.
 
     user = get_object_or_404(CustomUser, id=user_id)
     response = HttpResponse()
@@ -158,7 +155,7 @@ def profile_stream_file(request, user_id):
 
 
 class ParticipationCountView(View):
-    # Lets you change the participation count of a user manually using the form.
+    # Lets you change the participation count of a user manually.
 
     template_name = 'main/profile.html'
 
@@ -184,10 +181,8 @@ class ParticipationCountView(View):
 
 
 class ProfileParticipationIncreaseView(LoginRequiredMixin, View):
-    # Lets you increase a members participation count for monthly count and its current belt color.
-    # I made it a jsonresponse to use ajax to not refresh the page after each increase.
-    # I added serialize and timestamp to be able to order member from most recent participants.
-
+    # Lets you increase student's attendance.
+    # I made it a jsonresponse to use ajax.
     def post(self, request, user_id):
         user = CustomUser.objects.get(pk=user_id)
 
@@ -232,7 +227,7 @@ class AccountDeleteView(OwnerDeleteView):
 
 
 class GradingView(LoginRequiredMixin, View):
-
+    # For recording graded materials such as essays and tests for students.
     template_name = 'main/grading.html'
 
     def get(self, request, pk):
@@ -274,7 +269,7 @@ def grading_stream_file(request, pk):
 
 
 class ScheduleCreateView(LoginRequiredMixin, View):
-    # View for creating a lesson using the Createform.
+    # View for creating schedules.
 
     template_name = 'main/schedule_form.html'
 
@@ -304,6 +299,7 @@ class ScheduleCreateView(LoginRequiredMixin, View):
 
 
 class ScheduleUpdateView(LoginRequiredMixin, View):
+    # View for updating schedules.
 
     template_name = 'main/schedule_update.html'
 
@@ -334,7 +330,7 @@ class ScheduleUpdateView(LoginRequiredMixin, View):
 
 
 class ScheduleListView(LoginRequiredMixin, View):
-    # For displaying Iwade lessons on the page.
+    # For displaying schedules.
 
     model = Schedule
     template_name = "main/schedules.html"
@@ -372,8 +368,7 @@ class ScheduleView(LoginRequiredMixin, View):
 
 
 class ScheduleDeleteView(OwnerDeleteView):
-    # Lets you delete a lesson.
-    # Deleting a lesson does not affect any participation counts associated with the lesson.
+    # For deleting schedules.
     model = Schedule
 
     def get_success_url(self):
@@ -404,7 +399,9 @@ def schedule_stream_file(request, pk):
 
 
 class NewLessonCreateView(LoginRequiredMixin, View):
-    # View for creating a lesson using the Createform.
+    # View for creating a lesson.
+    # You can select multiple days for the same kind of lesson.
+    # I made it this way because YMCA has the same time and type of lesson everyday.
 
     template_name = 'main/new_lesson_form.html'
 
@@ -452,6 +449,7 @@ class NewLessonCreateView(LoginRequiredMixin, View):
 
 
 class LessonUpdateView(LoginRequiredMixin, View):
+    # View for updating lessons.
 
     template_name = 'main/lesson_update.html'
 
@@ -482,7 +480,6 @@ class LessonUpdateView(LoginRequiredMixin, View):
             days = form.cleaned_data['days']
             spot = form.cleaned_data['spot']
 
-            # Iterate through the list of days
             for day in days:
                 lesson_spot_used = Lesson.objects.filter(day=day, spot=spot, schedule=schedule).exclude(pk=pk).exists()
 
@@ -490,7 +487,7 @@ class LessonUpdateView(LoginRequiredMixin, View):
                     lesson = form.save(commit=False)
                     lesson.owner = self.request.user
                     lesson.schedule = schedule
-                    lesson.day = day  # Set the individual day
+                    lesson.day = day
                     lesson.save()
                 else:
                     ctx = {'form': form, 'lesson': lesson, 'error_message': 'This day and spot already exist.'}
@@ -505,7 +502,7 @@ class LessonUpdateView(LoginRequiredMixin, View):
 
 
 class LessonView(LoginRequiredMixin, View):
-    # Lets you add a member to a lesson.
+    # View for displaying lessons and checking attendance.
 
     template_name = 'main/lesson.html'
     model = Click
@@ -559,24 +556,19 @@ class LessonView(LoginRequiredMixin, View):
 
 
 class AddUsersToLessonsView(View):
-    # Lets you add each member to all lessons of each respective school.
+    # Lets you add each member to all lessons of each respective schedule category.
 
     template_name = 'main/bjj_lesson_list.html'
 
     def post(self, request, *args, **kwargs):
-        # Get all users and lessons
         all_users = CustomUser.objects.all()
         all_lessons = Lesson.objects.all()
 
-        # Iterate through each user and each lesson to create or delete Clicks
         for user in all_users:
             for lesson in all_lessons:
-                # Check if the user's categories match the lesson's schedule category
                 if lesson.schedule and user.categories and lesson.schedule.category in user.categories:
-                    # Create or update Click
                     Click.objects.get_or_create(user=user, lesson=lesson)
                 else:
-                    # Delete Click if it exists
                     Click.objects.filter(user=user, lesson=lesson).delete()
 
         return HttpResponseRedirect(reverse('main:schedules'))
@@ -585,59 +577,9 @@ class AddUsersToLessonsView(View):
 
 
 
-class LateAbsenceFormView(LoginRequiredMixin, View):
-    template_name = 'main/late_absence_form.html'
-
-    def get(self, request, pk):
-        user = get_object_or_404(CustomUser, pk=pk)
-        late_absence = LateAbsence.objects.filter(user=user)
-
-        # Prepopulate the form with the user data
-        form = LateAbsenceForm(initial={'user': user.pk})
-
-        ctx = {'form': form, 'late_absence': late_absence, 'user': user}
-        return render(request, self.template_name, ctx)
-
-    def post(self, request, pk):
-        user = get_object_or_404(CustomUser, pk=pk)
-        form = LateAbsenceForm(request.POST)
-
-        if form.is_valid():
-
-            late_absence = form.save(commit=False)
-            late_absence.user = user
-
-            late_absence.save()
-            # Redirect to the LessonView with the lesson's primary key
-            return redirect('main:profile', user_id=user.pk)
-        else:
-            ctx = {'form': form, 'user': user}
-            return render(request, self.template_name, ctx)
-
-
-
-class LateAbsenceView(LoginRequiredMixin, View):
-    # Lets you add a member to a lesson.
-
-    template_name = 'main/late_absence.html'
-    model = LateAbsence
-
-    def get(self, request, pk):
-
-        user = get_object_or_404(CustomUser, pk=pk)
-        late_absence = LateAbsence.objects.filter(user=user)
-        ctx = {
-            'late_absence': late_absence, 'user': user
-        }
-        return render(request, self.template_name, ctx)
-
-
-
-
-
 class ParticipationIncreaseView(LoginRequiredMixin, View):
-    # Lets you increase a members participation count for monthly count and its current belt color.
-    # I made it a jsonresponse to use ajax to not refresh the page after each increase.
+    # Lets you increase student's attendance.
+    # I made it a jsonresponse to use ajax.
     # I added serialize and timestamp to be able to order member from most recent participants.
 
     def post(self, request, pk, click_id):
@@ -678,6 +620,60 @@ class ParticipationIncreaseView(LoginRequiredMixin, View):
 
 
 
+
+class LateAbsenceFormView(LoginRequiredMixin, View):
+    # View for recording late/absence.
+
+    template_name = 'main/late_absence_form.html'
+
+    def get(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        late_absence = LateAbsence.objects.filter(user=user)
+
+        form = LateAbsenceForm(initial={'user': user.pk})
+
+        ctx = {'form': form, 'late_absence': late_absence, 'user': user}
+        return render(request, self.template_name, ctx)
+
+    def post(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        form = LateAbsenceForm(request.POST)
+
+        if form.is_valid():
+
+            late_absence = form.save(commit=False)
+            late_absence.user = user
+
+            late_absence.save()
+            return redirect('main:profile', user_id=user.pk)
+        else:
+            ctx = {'form': form, 'user': user}
+            return render(request, self.template_name, ctx)
+
+
+
+class LateAbsenceView(LoginRequiredMixin, View):
+    # For displaying late/absence.
+
+    template_name = 'main/late_absence.html'
+    model = LateAbsence
+
+    def get(self, request, pk):
+
+        user = get_object_or_404(CustomUser, pk=pk)
+        late_absence = LateAbsence.objects.filter(user=user)
+        ctx = {
+            'late_absence': late_absence, 'user': user
+        }
+        return render(request, self.template_name, ctx)
+
+
+
+
+
+
+
+
 class LessonDeleteView(OwnerDeleteView):
     # Lets you delete a lesson.
     # Deleting a lesson does not affect any participation counts associated with the lesson.
@@ -710,8 +706,9 @@ def stream_file(request, pk):
 
 
 
+
 class NameToDoListsCreateView(LoginRequiredMixin, View):
-    # View for creating a lesson using the Createform.
+    # View for creating a ToDoList with a password.
 
     template_name = 'main/name_to_do_lists_form.html'
 
@@ -733,6 +730,8 @@ class NameToDoListsCreateView(LoginRequiredMixin, View):
 
 
 class NameToDoListsView(LoginRequiredMixin, View):
+    # View for displaying ToDoLists.
+
     template_name = 'main/name_to_do_list.html'
 
     def get(self, request) :
@@ -745,8 +744,8 @@ class NameToDoListsView(LoginRequiredMixin, View):
 
 
 class NameToDoDeleteView(OwnerDeleteView):
-    # Lets you delete a lesson.
-    # Deleting a lesson does not affect any participation counts associated with the lesson.
+    # For deleting a ToDoList.
+
     model = NameToDoLists
 
     def get_success_url(self):
@@ -756,6 +755,7 @@ class NameToDoDeleteView(OwnerDeleteView):
 
 
 class ToDoListCreateView(LoginRequiredMixin, View):
+    # View for creating things to do within your own ToDoList.
 
     def post(self, request, pk):
         form = ToDoListForm(request.POST)
@@ -782,6 +782,9 @@ class ToDoListCreateView(LoginRequiredMixin, View):
 
 
 class ToDoListView(LoginRequiredMixin, View):
+    # View for displaying items within your own ToDoList.
+    # I added need for password input to display ToDos in the list and to add new things to do.
+
     template_name = 'main/to_do_list.html'
 
     def get(self, request, pk) :
@@ -807,6 +810,8 @@ class ToDoListView(LoginRequiredMixin, View):
 
 
 class ToDoDeleteView(LoginRequiredMixin, View):
+    # For deleting items within the ToDoList.
+
     def post(self, request, pk):
         to_do_list = get_object_or_404(ToDoList, pk=pk)
 

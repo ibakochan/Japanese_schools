@@ -348,10 +348,10 @@
                                 </button>
                                 </form>
                                 <div class="card-body">
-                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ u }}lateSection" aria-expanded="false" aria-controls="lateSection">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ u }}_no_lateSection" aria-expanded="false" aria-controls="lateSection">
                                         Late/Absent
                                 </button>
-                                <div class="collapse" id="{{ u }}lateSection">
+                                <div class="collapse" id="{{ u }}_no_lateSection">
                                 {% if request.user.is_superuser %}
                                     <h2 class="card-title text-dark font-weight-bold"></h2>
                                     <form method="post" action="{% url 'main:late_absence_form' u.id %}">
@@ -415,10 +415,10 @@
                                 </button>
                                 </form>
                                 <div class="card-body">
-                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ u }}lateSection" aria-expanded="false" aria-controls="lateSection">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ u }}_all_lateSection" aria-expanded="false" aria-controls="lateSection">
                                         Late/abscent
                                 </button>
-                                <div class="collapse" id="{{ u }}lateSection">
+                                <div class="collapse" id="{{ u }}_all_lateSection">
                                 {% if request.user.is_superuser %}
                                     <form method="post" action="{% url 'main:late_absence_form' u.id %}">
                                         {% csrf_token %}

@@ -2,7 +2,6 @@ $(document).ready(function () {
     $('.increase-participation').on('click', function () {
         var button = $(this);
 
-        // Check if the button is already disabled
         if (button.prop('disabled')) {
             return;
         }

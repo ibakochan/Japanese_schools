@@ -3,6 +3,7 @@ from accounts.models import CustomUser
 
 class UserLimitMiddleware:
     # A middle ware for preventing access to the signup page if the number of members exceeeds the limit set.
+    # I am not currently using this on my site though, but im still keeping it here in case of request for one or a similar limit.
     def __init__(self, get_response):
         self.get_response = get_response
 

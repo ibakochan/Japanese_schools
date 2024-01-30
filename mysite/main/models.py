@@ -75,7 +75,7 @@ class Lesson(models.Model) :
     ]
 
 
-    # Color for the lesson title in the schedule.
+    # Color for the lesson title.
     COLOR_CHOICES = [
         ('sky', 'Light Blue'),
         ('green', 'Green'),
@@ -98,6 +98,8 @@ class Lesson(models.Model) :
 
 
 class NameToDoLists(models.Model):
+    # Model for making ToDoLists with name and password for privacy.
+
     name = models.CharField(max_length=200)
     password = models.CharField(max_length=200, blank=True, null=True)
     hashed_password = models.CharField(max_length=200, blank=True, null=True)
@@ -111,6 +113,8 @@ class NameToDoLists(models.Model):
 
 
 class ToDoList(models.Model) :
+    # For writing things to do in the ToDoList.
+
     title = models.CharField(
             max_length=200,
     )
@@ -120,7 +124,7 @@ class ToDoList(models.Model) :
 
 
 class ParticipationCount(models.Model):
-    # Taking monthly jiu jitsu participation counts and counts for each belt color.
+    # For taking attendance of students.
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
@@ -132,6 +136,8 @@ class ParticipationCount(models.Model):
 
 class Click(models.Model):
     # For putting members names into the lesson to increase their participationcounts later.
+    # I ended up naming it click cause it was the first model I made and I was trying to make it into a button click so I named it click.
+    # I could change it if I want to.
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, default=None)
@@ -142,6 +148,8 @@ class Click(models.Model):
         return str(self.user)
 
 class LateAbsence(models.Model):
+    # Model for recording late/absence.
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
 
@@ -157,6 +165,7 @@ class LateAbsence(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
 
 class Grading(models.Model):
+    # Model for recording graded materials.
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
 

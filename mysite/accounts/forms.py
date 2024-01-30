@@ -8,18 +8,18 @@ class CustomUserCreationForm(UserCreationForm):
     # Using widget to make the input form nice and uniform.
 
     username = forms.CharField(
-        label="名前",
+        label="Name",
         max_length=150,
         widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
 
     password1 = forms.CharField(
-        label="パスワード",
+        label="Password",
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
     )
 
     password2 = forms.CharField(
-        label="パスワード確認",
+        label="Password confirmation",
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
     )
 

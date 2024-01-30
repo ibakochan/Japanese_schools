@@ -66,6 +66,8 @@ class UserPreferencesForm(forms.ModelForm):
 
 
 class GradingMaterialForm(forms.ModelForm):
+    # This form lets you record graded material.
+
     max_upload_limit = 2 * 1024 * 1024
     max_upload_limit_text = naturalsize(max_upload_limit)
 
@@ -99,7 +101,6 @@ class GradingMaterialForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super(GradingMaterialForm, self).save(commit=False)
 
-        # Creating an instance from the form to save it in the model.
         f = instance.grading_picture
         if isinstance(f, InMemoryUploadedFile):
             bytearr = f.read()
@@ -118,7 +119,7 @@ class GradingMaterialForm(forms.ModelForm):
 
 class ParticipationCountForm(forms.ModelForm):
     # This form lets you update a member participation count manually
-    # This is so that the owner of the gym can manually add previous participationcounts that were in paper form.
+    # This is so that the teachers of the school can manually add previous attendance counts that were in paper form.
     class Meta:
         model = ParticipationCount
         fields = ['attendance']
@@ -134,8 +135,7 @@ class ParticipationCountForm(forms.ModelForm):
 
 class CreateForm(forms.ModelForm):
     # This is a form for creating a lesson in the schedule.
-    # It's using the same type of code as for the picture in the UserCreateForm.
-    # You can write a title, text, time, upload a picture, choose day, spot in the schedule, category, color and school
+    # You can write a title, time, upload a picture, choose day, spot in the schedule and color.
     max_upload_limit = 2 * 1024 * 1024
     max_upload_limit_text = naturalsize(max_upload_limit)
 
@@ -196,6 +196,7 @@ class CreateForm(forms.ModelForm):
 
 
 class LateAbsenceForm(forms.ModelForm):
+    # Form for recording late/absence.
 
     class Meta:
         model = LateAbsence
@@ -219,13 +220,12 @@ class LateAbsenceForm(forms.ModelForm):
 
 
 class ScheduleCreateForm(forms.ModelForm):
-    # This is a form for creating a lesson in the schedule.
-    # It's using the same type of code as for the picture in the UserCreateForm.
-    # You can write a title, text, time, upload a picture, choose day, spot in the schedule, category, color and school
+    # This is a form for creating a schedule.
+    # You can write a title, choose color, category and upload a picture.
     max_upload_limit = 2 * 1024 * 1024
     max_upload_limit_text = naturalsize(max_upload_limit)
 
-    picture = forms.FileField(required=False, label='最大大きさ <= '+max_upload_limit_text)
+    picture = forms.FileField(required=False, label='Upload limit <= '+max_upload_limit_text)
     upload_field_name = 'picture'
 
 
@@ -267,6 +267,8 @@ class ScheduleCreateForm(forms.ModelForm):
 
 
 class NameToDoListsForm(forms.ModelForm):
+    # Form for making a ToDoList.
+
     class Meta:
         model = NameToDoLists
         fields = ['name', 'password']
@@ -278,6 +280,8 @@ class NameToDoListsForm(forms.ModelForm):
 
 
 class ToDoListForm(forms.ModelForm):
+    # Form for writing down things to do in your ToDoList.
+
     class Meta:
         model = ToDoList
         fields = ['title']
