@@ -25,6 +25,8 @@ Todo!
     <button type="submit">Submit</button>
 </form>
 
+
+{% if password_entered_successfully %}
 <div id="to-do-list-form-container">
     <form id="to-do-list-form" method="post" action="{% url 'main:to_do_list_create' name_to_do_lists.pk %}" data-url="{% url 'main:to_do_list_create' name_to_do_lists.pk %}">
         {% csrf_token %}
@@ -49,6 +51,7 @@ Todo!
         {% endfor %}
     </div>
 </div>
+{% endif %}
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
