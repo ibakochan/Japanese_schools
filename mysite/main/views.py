@@ -789,18 +789,20 @@ class ToDoListView(LoginRequiredMixin, View):
 
     def get(self, request, pk) :
         name_to_do_lists = get_object_or_404(NameToDoLists, pk=pk)
-        ctx = {'name_to_do_lists': name_to_do_lists}
+        to_do_list = ToDoList.objects.filter(name_to_do_lists=name_to_do_lists)
+        form = ToDoListForm(initial={'name_to_do_lists': name_to_do_lists})
+        ctx = {'form': form, 'to_do_list': to_do_list, 'name_to_do_lists': name_to_do_lists}
 
         return render(request, self.template_name, ctx)
 
     def post(self, request, pk):
         name_to_do_lists = get_object_or_404(NameToDoLists, pk=pk)
+        to_do_list = ToDoList.objects.filter(name_to_do_lists=name_to_do_lists)
         form = ToDoListForm(initial={'name_to_do_lists': name_to_do_lists})
         password_entered = request.POST.get('password')
 
         if name_to_do_lists.check_password(password_entered):
-            to_do_list = ToDoList.objects.filter(name_to_do_lists=name_to_do_lists)
-            ctx = {'form': form, 'to_do_list': to_do_list, 'name_to_do_lists': name_to_do_lists}
+            ctx = {'form': form, 'to_do_list': to_do_list, 'name_to_do_lists': name_to_do_lists, 'password_entered_successfully': True}
             return render(request, self.template_name, ctx)
 
         else:
