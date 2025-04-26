@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)oztt+gg(@0=4zs%h#0x@*p=kn(1sd*nxrjh4ps!$%71)jh3kl'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -33,7 +33,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = '/home/amaterasu1337/django_projects/mysite/mysite/media/'
 
 
-ALLOWED_HOSTS = [ '*' ]
+ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS')
 
 AUTH_PASSWORD_VALIDATORS = []
 # Application definition
@@ -104,11 +104,12 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ymcawakayama$default',
-        'USER': 'ymcawakayama',
-        'PASSWORD': '*****',
-        'HOST': 'ymcawakayama.mysql.pythonanywhere-services.com',
-         'OPTIONS': {
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
+        'OPTIONS': {  
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
